@@ -4,7 +4,7 @@
 clear
 
 #just echo welcome messages
-echo "This is information provided by $0 . Program starts now."
+echo "This information is provided by $0 . Program starts now."
 
 echo "Hello, $USER"
 
