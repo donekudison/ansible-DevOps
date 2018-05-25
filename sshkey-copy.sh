@@ -5,12 +5,20 @@ serverlist='inventory'
 servers=`cat $serverlist`
 #Step 1: Create Authentication SSH-Kegen Keys on host server.
 #press Enter keys twince
-
+#
 ssh-keygen -t rsa
+#
+for server in $servers
+do
+#Step 2: Copying ssh ID's on remote server
+#
+ssh-copy-id ${server} 
+#
+#Step 4: Login from Host server to remote Server and Set Permissions
+#
+ssh root@${server} "chmod 700 .ssh; chmod 640 .ssh/authorized_keys"
+#
+#end of for loop.
+done
+#example ssh root@192.168.0.11
 
-for i in `cat servers`; do cat ~/.ssh/id_rsa.pub | ssh -oConnectTimeout=5 -oStrictHostKeyChecking=no root@$i 'mkdir -pm 0700 ~/.ssh &&
-while read -r keytype keyname comment; do
-if ! (grep -Fw "$keytype $keyname" ~/.ssh/authorized_keys | grep -qsvF "^#"); then
-echo "$keytype $keyname $comment" >> ~/.ssh/authorized_keys
-fi
-done'; done
