@@ -1,6 +1,6 @@
 #!/bin/bash
 #we use variable serverlist to keep server names
-serverlist='inventory'
+serverlist='servername'
 #we write in variable all server list
 servers=`cat $serverlist`
 #Step 1: Create Authentication SSH-Kegen Keys on host server.
@@ -16,7 +16,7 @@ ssh-copy-id ${server}
 #
 #Step 4: Login from Host server to remote Server and Set Permissions
 #
-ssh root@${server} "chmod 700 .ssh; chmod 640 .ssh/authorized_keys"
+ssh $USER@${server} "chmod 700 .ssh; chmod 640 .ssh/authorized_keys"
 #
 #end of for loop.
 done
