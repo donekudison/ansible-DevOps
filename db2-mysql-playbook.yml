@@ -1,0 +1,42 @@
+---
+- hosts: all # Replace this with your database's host/group
+  vars:
+      mysql_password: Passwd123T  # Replace this with your root mysql password
+      epel_repo: epel-release-6-8.noarch.rpm
+  become_user: root
+  become_method: sudo
+
+  tasks: 
+   
+   # The EPEL repository is required to install Python pip
+  - name: Download EPEL-repo rpm for CentOS 6.x
+    get_url: dest=/tmp/{{ epel_repo }}
+        url=http://download.fedoraproject.org/pub/epel/6/{{ ansible_architecture }}/{{ epel_repo }}
+
+  - name: Install EPEL-repo rpm
+    yum: pkg=/tmp/{{ epel_repo }} state=installed
+
+#  - name: Ensure Python pip is at the latest version
+ #   yum: pkg=python-pip state=latest
+
+  - name: Ensure MySQL server is at the latest version
+    yum: pkg=mysql-server state=latest
+
+  - name: Start mysqld, if not running
+    service: name=mysqld state=started
+
+  - name: Ensure MySQL-Python is at the latest version
+    yum: pkg=MySQL-python state=latest
+
+  - name: Install ConfigParser Python package
+    pip: name=configparser
+
+  # This step is required to run the template module
+  - name: Ensure libselinux-python is at the latest version
+    yum: pkg=libselinux-python state=latest
+
+  - name: Set the root user for MYSQL
+    mysql_user: name=root password={{ mysql_password }}
+
+  - name: Copy the ".my.cnf" file
+    template: src=my.cnf.j2 dest=~/.my.cnf mode=0600 

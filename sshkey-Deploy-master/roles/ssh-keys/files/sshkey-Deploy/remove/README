@@ -1,0 +1,3 @@
+the contents of any .pub files will be removed from the users authorized_keys file 
+
+removal happens after adding new keys
