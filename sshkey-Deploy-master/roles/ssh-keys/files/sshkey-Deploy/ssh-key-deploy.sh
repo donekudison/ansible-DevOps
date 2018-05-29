@@ -5,16 +5,8 @@
 # * copy any .pub files which should be removed into ./remove/
 #
 #
-# Author: Mirko Kaiser, http://www.KaiserSoft.net
-# Project URL: https://github.com/KaiserSoft/SSH-Key-Deploy/
-# Support the software with Bitcoins !thank you!: 157Gh2dTCkrip8hqj3TKqzWiezHXTPqNrV
-# Copyright (C) 2015 Mirko Kaiser
-# First created in Germany on 2015-09-20
-# License: New BSD License
-#
 # Example for current user: ./ssh-key-deploy.sh
 # Example with custom keys file: ./ssh-key-deploy.sh /home/foo/authorized_key
-
 
 AUTHORIZED_KEYS="$HOME/.ssh/authorized_keys"
 

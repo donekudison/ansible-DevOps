@@ -5,7 +5,7 @@
 ---
 
 - name: Downloading latest version from Git repo
-  local_action: get_url url="{{ ssh_keys_url }}" dest=./roles/ssh-keys/files/SSH-Key-Deploy/
+  local_action: get_url url="{{ ssh_keys_url }}" dest=./roles/ssh-keys/files/sshkey-Deploy/
   when: ssh_keys_update == True
 
 
@@ -21,5 +21,5 @@
 - debug: var=cmd_return.stdout_lines
 
 
-- name: removing SSH-Key-Deploy
+- name: removing sshkey-Deploy
   file: path=/tmp/sshkey-Deploy state=absent
