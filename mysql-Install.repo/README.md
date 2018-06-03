@@ -115,10 +115,5 @@ License
 -------
 
 BSD
-
-Author Information
-------------------
-
-Benno Joy
  
 

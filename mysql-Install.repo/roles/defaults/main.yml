@@ -2,22 +2,22 @@
 
 mysql_port: 3306
 mysql_bind_address: "0.0.0.0"
-mysql_root_db_pass: foobar
+mysql_root_db_pass: school1
 
 mysql_db:
-     - name: foo
+     - name: esystem-db
        replicate: yes
-     - name: bar
+     - name: db-bar
        replicate: no
 
 mysql_users:
-     - name: benz
-       pass: foobar
+     - name: rsystem
+       pass: school1
        priv: "*.*:ALL"
 
 mysql_repl_user:
-  - name: repl
-    pass: foobar
+  - name: esystem
+    pass: school1
 
 mysql_repl_role: master
 mysql_db_id: 7
