@@ -27,7 +27,7 @@ them are as follows:
       # A list that has all the databases to be
       # created and their replication status:
       mysql_db:                                 
-           - name: foo
+           - name: foo-testing
              replicate: yes
            - name: bar
              replicate: no
@@ -35,7 +35,7 @@ them are as follows:
       # A list of the mysql users to be created
       # and their password and privileges:
       mysql_users:                              
-           - name: benz
+           - name: testing
              pass: foobar
              priv: "*.*:ALL"
 
@@ -65,8 +65,8 @@ database or users.
 
       - hosts: all
         roles:
-         - {role: mysql, mysql_db: [{name: benz},
-                                    {name: benz2}],
+         - {role: mysql, mysql_db: [{name: testing},
+                                    {name: testing2}],
             mysql_users: [{name: ben3, pass: foobar, priv: "*.*:ALL"},
                           {name: ben2, pass: foo}] }
 
@@ -78,10 +78,10 @@ database as replication master with one database configured for replication.
 
       - hosts: all
         roles:
-         - {role: mysql, mysql_db: [{name: benz, replicate: yes },
-                                    { name: benz2, replicate: no}], 
-                         mysql_users: [{name: ben3, pass: foobar, priv: "*.*:ALL"},
-                                       {name: ben2, pass: foo}],
+         - {role: mysql, mysql_db: [{name: testing1, replicate: yes },
+                                    { name: testing2, replicate: no}], 
+                         mysql_users: [{name: testing3, pass: foobar, priv: "*.*:ALL"},
+                                       {name: testing2, pass: foo}],
                          mysql_repl_user: [{name: repl, pass: foobar}] }
 
 4) A fully installed/configured MySQL Server with master and slave
@@ -89,9 +89,9 @@ replication.
 
       - hosts: master
         roles:
-         - {role: mysql, mysql_db: [{name: benz}, {name: benz2}],
-                         mysql_users: [{name: ben3, pass: foobar, priv: "*.*:ALL"},
-                                       {name: ben2, pass: foo}],
+         - {role: mysql, mysql_db: [{name: testing1}, {name: testing2}],
+                         mysql_users: [{name: testing3, pass: foobar, priv: "*.*:ALL"},
+                                       {name: testing2, pass: foo}],
                          mysql_db_id: 8 }
 
       - hosts: slave
