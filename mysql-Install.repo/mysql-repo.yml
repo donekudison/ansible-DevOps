@@ -1,0 +1,17 @@
+--- 
+- hosts: ansible
+  user: root
+  roles: 
+    - vars: 
+        - main.yml
+        - RedHat.yml
+    - tasts: 
+        - main.yml
+    - templates: 
+        - .my.cnf.j2
+        - my.cnf.RedHat.j2
+        - mysql.cnf.j2
+    - defaults: 
+        - main.yml
+    - handlers: 
+        - main.yml

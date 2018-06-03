@@ -1,0 +1,27 @@
+---
+- name: install redhat dependencies
+  yum:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - gcc
+    - make
+  when: ansible_os_family == "RedHat"
+
+# Conditionally install the i686 build of libgcc if we are building 64-bit
+# It must be version-locked with x64 libgcc, so use 'latest' to update libgcc first
+# Otherwise you get a version mismatch error from yum when installing.
+- name: update libgcc on rhel for 64-bit dependencies
+  yum:
+    name: libgcc
+    state: latest
+  when: ansible_os_family == "RedHat" and redis_make_64bit|bool
+
+- name: install redhat 64-bit dependencies
+  yum:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - libgcc.i686
+    - glibc-devel.i686
+  when: ansible_os_family == "RedHat" and redis_make_64bit|bool
