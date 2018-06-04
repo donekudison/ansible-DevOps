@@ -1,0 +1,48 @@
+---
+#Lock down root super-user login
+- hosts: ansible
+  become_user: root
+  become_method: sudo
+  gather_facts: true
+  vars:
+
+  tasks:
+    #- name: Prevent non-root users from login into the system using nologin shell
+     # command: "/sbin/useradd -s /usr/sbin/nologin -m consul"
+      #user: 
+        #name: consul
+        #shell: /sbin/nologin
+        #groups: ansible
+        #state: absent
+        #remove: yes
+
+    - name: Preventing users to login in as root to become super user
+      #shell: "sed '/^root/s!/bin/bash$! /sbin/nologin/!' /etc/passwd"
+      lineinfile: path=/etc/passwd
+              regexp="^root:x:0:0:root:/root:/bin/bash"
+              line="root:x:0:0:root:/root:/bin/false"
+              state=present
+
+    #- name: Allow sudo for user created
+      #copy: 
+       # content=%ansible  ALL=(ALL) NOPASSWD: ALL
+      #  dest: /etc/sudoers.d/sudoers
+       # mode: 0600
+     
+    #- name: Enabling ssh-key only root access
+      #lineinfile:
+        #dest: /etc/ssh/sshd_config
+        #regexp: '^PermitRootLogin'
+        #line: 'PermitRootLogin without-password'
+      #notify: 
+      #  - restart_sshd
+      #  - restart_ssh
+
+  #handlers:
+  #  - name: restart_sshd
+  #    service:
+  #      name: sshd
+   #     state: restarted
+   #     enabled: true
+   #   when: ansible_distribution == 'RedHat'
+      
