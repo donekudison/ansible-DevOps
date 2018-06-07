@@ -1,0 +1,8 @@
+#An Ansible role that installs Apache activeMQ
+---
+- hosts: ansible
+  #become_user: root
+ #bcome_method: sudo
+    
+  roles:
+    - role-redis.repo

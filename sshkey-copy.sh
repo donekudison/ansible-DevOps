@@ -16,7 +16,7 @@ ssh-copy-id ${server}
 #
 #Step 4: Login from Host server to remote Server and Set Permissions
 #
-ssh $USER@${server} "chmod 700 .ssh; chmod 640 .ssh/authorized_keys"
+ssh root@${server} "chmod 700 .ssh; chmod 640 .ssh/authorized_keys"
 #
 #end of for loop.
 done
