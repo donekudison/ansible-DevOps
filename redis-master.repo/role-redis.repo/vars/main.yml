@@ -1,2 +1,5 @@
 ---
 redis: { version: 4.0.9 }
+redis_install_dir: /tmp
+redis_user: root
+redis_group: "{{ redis_user }}"

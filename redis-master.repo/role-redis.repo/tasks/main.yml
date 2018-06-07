@@ -8,20 +8,36 @@
   tags: redis
 
 - name: download redis source
-  shell: wget -O - http://download.redis.io/releases/redis-{{redis.version}}.tar.gz | tar -xz -C /tmp creates=/tmp/redis-{{redis.version}}
-  tags: redis
+  shell: wget -O - http://download.redis.io/releases/redis-{{redis.version}}.tar.gz | tar -xz -C "{{ redis_install_dir }}"  creates="{{ redis_install_dir }}/redis-{{redis.version}}"
+  owner="{{ redis_user }}" group="{{ redis_group }}" tags: redis
 
 - name: install redis
-  shell: make chdir=/tmp/redis-{{redis.version}} creates=/tmp/redis-{{redis.version}}/src/redis-server
+  shell: make chdir={{ redis_install_dir }}/redis-{{redis.version}} creates={{ redis_install_dir }}/redis-{{redis.version}}/src/redis-server
+  tags: redis
+
+- name: Create a directory for redis
+  file:
+    path: "{{ redis_install_dir }}/redis"
+    state: directory
+    recurse: yes
+    force: yes
   tags: redis
 
 - name: move compiled redis binaries
-  shell: cp -f {{item}} /usr/local/bin chdir=/tmp/redis-{{redis.version}}/src
+  shell: cp -f {{item}} /usr/local/bin chdir={{ redis_install_dir }}/redis-{{redis.version}}/src
   with_items:
   - redis-cli
   - redis-server
   - redis-benchmark
   tags: redis
+
+- name: enable overcommit in sysctl
+  sysctl:
+    name: vm.overcommit_memory
+    value: 1
+    state: present
+    reload: yes
+    ignoreerrors: yes
 
 - name: configure redis-server
   template: src=redis.conf.j2 dest=/etc/redis.conf
@@ -29,13 +45,29 @@
   - restart redis
   tags: redis
 
-- name: make redis a service
-  template: src=redis_init_script.j2 dest=/etc/init.d/redis mode=755
+- name: Creating symbolic link
+  file:
+    src: "{{ redis_install_dir }}/redis-{{redis.version}}"
+    dest: "{{ redis_install_dir }}/redis"
+    owner: "{{ redis_user }}"
+    group: "{{ redis_group }}"
+    state: link
+    force: yes
+
+- name: make redis a service in systemd
+  template: src=redis_init_script.j2 dest=/etc/systemd/system/redis.service
   tags: redis
 
-- name: run redis
-  shell: /etc/init.d/redis start creates=/var/run/redis.pid
-  tags: redis
+#- name: run redis
+#  shell: /etc/systemd/system/redis.service start creates=/var/run/redis.pid
+#  tags: redis
+
+- name: Reload systems
+  systemd:
+    daemon-reload: yes
+    enabled: yes
+    state: started
+    name: redis
 
 - name: Enable firewalld
   service: 
@@ -57,7 +89,7 @@
     #service: redis
     port: 511/tcp
     permanent: true
-    state: enabled
+    state: absent
     
 - name: Bounce firewalld
   service:

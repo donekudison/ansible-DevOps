@@ -1,4 +1,4 @@
-#An Ansible role that installs Apache activeMQ
+#An Ansible role that installs Redis Basic
 ---
 - hosts: ansible
   #become_user: root
