@@ -1,0 +1,7 @@
+---
+
+activemq_version: 5.15.4
+activemq_install_root: /opt
+activemq_user: root
+activemq_group: root
+activemq_create_user: no

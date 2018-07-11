@@ -1,0 +1,10 @@
+---
+- hosts: puma-qa-test # Replace this with your database's host/group
+  become_user: root
+  become_method: sudo
+
+  vars:
+      mysql_root_password: Penn!C2018  # Replace this with your root mysql password
+
+  roles:
+    - role: mysql-role

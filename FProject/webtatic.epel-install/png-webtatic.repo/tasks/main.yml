@@ -1,0 +1,42 @@
+# tasks/main.yml
+---
+#- name: Download and install epel-release 
+ # shell: rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+  #yum: 
+   # name: epel-release
+   # state: latest
+
+- name: Downloading 3rd party epel-release
+  get_url: 
+         dest=/tmp 
+         url=https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+
+- name: Downloading 3rd party webtatic repo for CentOS 7.x
+  get_url: 
+         dest=/tmp 
+         url=https://mirror.webtatic.com/yum/el7/webtatic-release.rpm
+           
+- name: Install 3rd party Epel-Release Repo
+  yum:
+    name: /tmp/epel-release-latest-7.noarch.rpm
+    state: latest
+    update_cache: yes
+  #command: rpm -ivh /tmp/epel-release-latest-7.noarch.rpm
+
+- name: Install 3rd party Webtatic Repo
+  yum:
+    name: /tmp/webtatic-release.rpm
+    state: latest
+    update_cache: yes
+  #command: rpm -Uvh /tmp/webtatic-release.rpm
+
+- name: Install Webtatic packages.
+  #yum:
+  #  name: mod_php72w php72w-opcache 
+  #  state: latest
+  #  update_cache: yes
+  shell: yum install mod_php72w php72w-opcache -y
+
+
+
+ 

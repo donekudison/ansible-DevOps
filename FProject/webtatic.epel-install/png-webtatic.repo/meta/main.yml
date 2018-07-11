@@ -1,0 +1,14 @@
+---
+dependencies: []
+
+galaxy_info:
+  author: PNG
+  description: webtatic for Linux
+  company: "PNG Cooperation"
+  license: "license (None)"
+  min_ansible_version: 2.4
+  platforms:
+    - name: EL
+      versions:
+      - 6
+      - 7

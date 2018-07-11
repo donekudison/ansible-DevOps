@@ -1,0 +1,101 @@
+---
+- name: Install Apache
+  yum:
+    name: httpd
+    state: latest
+
+#- name: Install LAMP
+#  yum: name={{ item }} state=present
+#  with_items:
+#   - httpd
+#   - php
+#   - php-mysql
+#   - git
+   
+#- name: Configure SELinux to allow httpd to connect to remote database
+#  seboolean: name=httpd_can_network_connect_db state=true persistent=yes
+#  when: sestatus.rc != 0
+
+- name: start Apache service
+  service:
+    name: httpd
+    state: started
+    enabled: yes
+
+# This will install nagios
+
+- name: Install nagios
+  yum: name={{ item }} state=present 
+  with_items:
+   - git
+   - nagios
+   - nagios-nrpe
+   - nagios-plugins
+   - nagios-plugins-nrpe
+   - nagios-plugins-ping
+   - nagios-plugins-ssh
+   - nagios-plugins-http
+   - nagios-plugins-mysql
+   - nagios-devel
+   - perl
+
+  notify: restart httpd
+
+- name: Install some useful nagios plugins
+  yum: name={{ item }} state=present
+  with_items:
+   - nagios-nrpe
+   - nagios-plugins-swap
+   - nagios-plugins-users
+   - nagios-plugins-procs
+   - nagios-plugins-load
+   - nagios-plugins-disk
+
+- name: Create nagios config dir
+  file: path=/etc/nagios/ansible-managed state=directory mode=0755
+
+- name: Configure nagios
+  copy: src=nagios.cfg dest=/etc/nagios/nagios.cfg
+  notify: restart nagios
+
+- name: Configure localhost monitoring
+  copy: src=localhost.cfg dest=/etc/nagios/objects/localhost.cfg
+  notify: restart nagios
+
+- name: Configure nagios services
+  copy: src=ansible-managed-services.cfg dest=/etc/nagios/
+
+- name: Create the nagios object files
+  template: src={{ item + ".j2" }}
+            dest=/etc/nagios/ansible-managed/{{ item }}
+  with_items:
+    - webservers.cfg
+    - dbservers.cfg
+    #- lbservers.cfg
+  notify: restart nagios
+
+#- name: start nagios
+#  service:
+#    name: nagios
+#    state: started
+#    enabled: yes
+
+- name: Enable firewalld
+  service:
+    name: firewalld 
+    state: started
+    enabled: yes
+
+- name: Set Nagios port for NRPE 5666
+  firewalld:
+    zone: internal
+    port: 5666/tcp
+    permanent: true
+    state: enabled
+
+- name: Restart Firewalld
+  service:
+    name: firewalld
+    state: restarted
+    enabled: yes
+

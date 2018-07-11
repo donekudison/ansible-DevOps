@@ -1,0 +1,15 @@
+---
+galaxy_info:
+  description: "Installs Activemq"
+  license: "license (None)"
+  min_ansible_version: 2.0
+  max_ansible_version: 2.3
+  platforms:
+    - name: EL
+      versions:
+        - 7
+      galaxy_tags:
+      - CLAW
+    - message:queues
+    - messaging
+dependencies: []

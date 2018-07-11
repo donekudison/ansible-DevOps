@@ -1,0 +1,11 @@
+# Playbook to deploy SSH keys to remote system. This script uses "sshkey-Deploy/master/ssh-key-deploy.sh"
+# # Use the following command for a fresh system, one where you don't have your key in authorized_keys yet
+# # ansible-playbook -i inventory ssh-deploy.yml --ask-pass
+#
+---
+
+- hosts: ansible
+  user: root
+
+  roles:
+    - ssh-keys

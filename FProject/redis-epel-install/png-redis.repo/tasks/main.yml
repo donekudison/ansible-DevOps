@@ -1,0 +1,73 @@
+---
+- name: Install redis deps
+  yum: name={{item}} state=present
+  with_items:
+  - gcc
+  - tcl
+  - git
+  tags: deps
+
+- name: Update yum cache.
+  yum: 
+    name: yum
+    update_cache: yes
+    state: latest
+  tags: web
+  
+#- name: Install redis
+  #shell: yum install redis -y
+  #tags: redis
+
+- name: Yum Install redis.
+  yum: 
+    name: redis
+    state: latest
+    update_cache: yes
+  tags: redis
+
+
+- name: Enable overcommit in sysctl
+  sysctl:
+    name: vm.overcommit_memory
+    value: 1
+    state: present
+    reload: yes
+    ignoreerrors: yes
+  tags: sysctl
+
+- name: Start redis service
+  service: 
+    name: redis
+    state: started
+    enabled: yes
+  tags: service
+
+- name: Enable firewalld
+  service: 
+    name: firewalld
+    state: started
+    enabled: yes
+  tags: firewall
+
+- name: Enable redis firewalld port
+  firewalld:
+    zone: internal
+    port: 6379/tcp
+    permanent: true
+    state: enabled
+  tags: port6379
+    
+- name: Enable redis tcp-backlog port
+  firewalld:
+    zone: internal
+    #service: redis
+    port: 511/tcp
+    permanent: true
+    state: enabled
+  tags: backlog
+    
+- name: Restart firewalld
+  service:
+    name: firewalld
+    state: restarted
+  tags: restart

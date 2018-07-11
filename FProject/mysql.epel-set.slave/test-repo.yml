@@ -1,0 +1,16 @@
+---
+- hosts: puma-qa-test
+  become_user: root
+  become_method: sudo
+  gather_facts: true
+
+  pre_tasks:
+    - name: Update yum cache.
+      yum: 
+        name: yum 
+        update_cache: yes 
+        state: latest
+      
+  roles:
+       #- role: mysql.install
+    - {role: mysql.install, mysql_root_db_pass: Penn!C2018, mysql_db: none, mysql_users: none }

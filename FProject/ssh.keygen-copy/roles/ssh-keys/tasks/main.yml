@@ -1,0 +1,25 @@
+# role to updated authorized_keys based on the .pub key file within active or remove
+# start ansible-playbook with --ask-pass for the initial deployment
+#
+# 	ansible-playbook -i hosts ssh-deploy.yml --ask-pass 
+---
+
+- name: Downloading latest version from Git repo
+  local_action: get_url url="{{ ssh_keys_url }}" dest=./roles/ssh-keys/files/sshkey-Deploy/
+  when: ssh_keys_update == True
+
+
+- name: transfer SSH-Key-Deploy to the remote system
+  copy: src=sshkey-Deploy dest=/tmp/ owner=root group=root mode=0700
+
+
+- name: deploying keys to remote system
+  shell: cd /tmp/sshkey-Deploy && ./ssh-key-deploy.sh
+  register: cmd_return
+
+
+- debug: var=cmd_return.stdout_lines
+
+
+- name: removing sshkey-Deploy
+  file: path=/tmp/sshkey-Deploy state=absent

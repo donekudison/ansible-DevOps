@@ -1,0 +1,42 @@
+
+define host{
+	host_name			puma-qa-test
+	alias				puma-qa-test
+	address				10.1.12.102
+	parents				server-backbone
+	check_command			check-host-alive
+	check_interval			5
+	retry_interval			1
+	max_check_attempts		5
+	check_period			24x7
+	process_perf_data		0
+	retain_nonstatus_information	0
+	contact_groups			router-admins
+	notification_interval		30
+	notification_period		24x7
+	notification_options		d,u,r
+	}
+
+# service checks to be applied to the web server	
+define service{
+	host_name		puma-qa-test
+	service_description	check-disk-sda1
+	check_command		check-disk!/dev/sda1
+	max_check_attempts	5
+	check_interval	5
+	retry_interval	3
+	check_period		24x7
+	notification_interval	30
+	notification_period	24x7
+	notification_options	w,c,r
+	contact_groups		linux-admins
+	}
+
+# service checks to be applied to the web server
+define service {
+	use				local-service
+	host_name			puma-qa-test
+	service_description	        webserver	
+	check_command			check_http
+	notifications_enabled		0
+}

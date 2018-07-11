@@ -1,0 +1,160 @@
+---
+- name: Download EPEL-repo rpm for CentOS 7.x
+  get_url:
+    dest: /tmp
+    url: http://repo.mysql.com/mysql-community-release-el7-7.noarch.rpm
+
+- name: Install MySQL Community Repo
+  yum:
+    name: /tmp/mysql-community-release-el7-7.noarch.rpm
+    state: present
+
+- name: Install the mysql packages in Redhat derivatives
+  yum: name={{ item }} state=latest
+  with_items:
+    - epel-release
+    - libselinux-python
+    - mysql-server
+    - MySQL-python
+
+- name: Check to see if pip is already installed
+  command: "pip --version"
+  ignore_errors: true
+  register: pip_is_installed
+  changed_when: false
+
+- block:
+  - name: Download get-pip.py
+    get_url:
+      url: https://bootstrap.pypa.io/get-pip.py
+      dest: /tmp
+
+  - name: Install pip
+    command: "python /tmp/get-pip.py"
+
+  - name: Delete get-pip.py
+    file:
+      state: absent
+      path: /tmp/get-pip.py
+  when: pip_is_installed.rc != 0
+
+- name: Copy the my.redhat.conf.j2 file
+  template:
+    src: my.redhat.conf.j2
+    dest: /etc/my.cnf
+    mode: 0644
+ 
+- name: Create the directory /etc/mysql/conf.d
+  file:
+    path: /etc/mysql/conf.d
+    state: directory
+    mode: 0755
+
+- name: Deploy mysql config to conf.d
+  template:
+    src: mysql.cnf.j2
+    dest: /etc/mysql/conf.d/mysql.cnf
+
+#- name: Install ConfigParser Python package
+#  pip:
+#    name: configparse
+#    state: latest
+ 
+- name: Start the mysql services
+  service:
+    name: mysqld
+    state: started
+    enabled: yes
+
+- name: Enable firewalld
+  service:
+    name: firewalld 
+    state: started
+    enabled: yes
+
+- name: Set mysqld port 3306
+  firewalld:
+    zone: internal
+    port: 3306/tcp
+    permanent: true
+    state: enabled
+
+- name: Restart firewalld
+  service:
+    name: firewalld
+    state: restarted
+
+#- name: update mysql root password for all root accounts
+#  mysql_user: name=root host="{{ item }}" password="{{ mysql_root_db_pass }}"
+ # check_implicit_admin: true
+#  with_items:
+ #  - "{{ ansible_hostname }}"
+ #  - 127.0.0.1
+ #  - ::1
+ #  - localhost
+ # when: ansible_hostname != 'localhost'
+
+#- name: Set mysql root password for all root accounts
+# If .my.cnf already exists, this will cause an mysql-root-password update.
+ # mysql_user: name=root password="{{ mysql_root_db_pass }}" host={{ item }}
+  #with_items:
+   #- 127.0.0.1
+   #- ::1
+   #- localhost
+  # when: ansible_hostname == 'localhost'
+
+- name: Copy .my.cnf file with root password credentials
+  template: src=client.my.conf.j2 dest=/root/.my.cnf owner=root group=root mode=0644
+
+#- name: Ensure anonymous users are not in the database
+  #mysql_user: name='' host={{ item }} state=absent
+ # with_items:
+ #  - localhost
+  # - "{{ ansible_hostname }}"
+
+#- name: Remove the test database
+#  mysql_db:
+#    name: test
+#    state: absent
+
+- name: Create the database's
+  mysql_db: name={{ item.name }} state=present
+  with_items:
+    - "{{ mysql_db }}"
+  when: mysql_db|lower() != 'none'
+
+- name: Create the database users
+  mysql_user: name={{ item.name }}  password={{ item.pass|default("Penn!C2018") }}
+                priv={{ item.priv|default("*.*:ALL") }} state=present host={{ item.host | default("localhost") }}
+  with_items:
+    - "{{ mysql_users }}"
+  when: mysql_users|lower() != 'none'
+
+#- name: Create the replication users
+#  mysql_user: name={{ item.name }}  host="%" password={{ item.pass|default("Penn!C2018") }}
+#                priv="*.*:REPLICATION SLAVE" state=present
+#  with_items:
+#    - "{{ mysql_repl_user }}"
+#  when: mysql_repl_role == 'master'
+
+- name: Check if slave is already configured for replication
+  mysql_replication: mode=getslave
+  ignore_errors: true
+  register: slave
+  when: mysql_repl_role == 'slave'
+
+- name: Ensure the hostname entry for master is available for the client.
+  lineinfile: dest=/etc/hosts regexp="{{ mysql_repl_master }}" line="{{ hostvars[mysql_repl_master].ansible_default_ipv4.address + "   " + mysql_repl_master }}" state=present
+  when: slave is failed and mysql_repl_role == 'slave' and mysql_repl_master is defined
+
+- name: Get the current master servers replication status
+  mysql_replication: mode=getmaster
+  delegate_to: "{{ mysql_repl_master }}"
+  register: repl_stat
+  when: slave is failed and mysql_repl_role == 'slave' and mysql_repl_master is defined
+
+- name: Change the master in slave to start the replication
+  mysql_replication: mode=changemaster master_host={{ mysql_repl_master }} master_log_file={{ repl_stat.File }} master_log_pos={{ repl_stat.Position }} master_user={{ mysql_repl_user[0].name }} master_password={{ mysql_repl_user[0].pass }}
+  when: slave is failed and mysql_repl_role == 'slave' and mysql_repl_master is defined
+
+

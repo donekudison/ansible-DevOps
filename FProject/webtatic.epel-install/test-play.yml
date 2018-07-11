@@ -1,0 +1,15 @@
+---
+- hosts: puma-qa-test
+  become_user: root
+  become_method: sudo
+  gather_facts: true
+
+  pre_tasks:
+    - name: Update yum cache.
+      yum:
+       name: yum
+       update_cache: yes
+       state: latest
+      
+  roles:
+    - png-webtatic.repo

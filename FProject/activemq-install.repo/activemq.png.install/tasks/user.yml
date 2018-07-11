@@ -1,0 +1,9 @@
+---
+
+- name: Create ActiveMQ system user
+  user:
+    name: "{{ activemq_user }}"
+    group: "{{activemq_group}}"
+    system: yes
+    state: present
+  when: activemq_create_user

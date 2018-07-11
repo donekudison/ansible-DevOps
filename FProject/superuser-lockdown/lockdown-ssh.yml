@@ -1,0 +1,51 @@
+---
+#Lock down root super-user login
+- hosts: puma-qa-test
+  become_user: root
+  become_method: sudo
+  gather_facts: true
+  
+  tasks:
+    #- name: Prevent non-root users from login into the system using nologin shell
+     # command: "/sbin/useradd -s /usr/sbin/nologin -m consul"
+      #user: 
+      #  name: consul
+       # shell: /sbin/nologin
+       # groups: ansible
+       # #state: absent
+        #remove: yes
+
+    #- name: Ensure group "somegroup name" exists
+     # group:
+      #  name: ansible
+       # state: present
+
+    #- name: Adding existing user to group "somegroup name"
+     # user:
+      #  name: $USER 
+       # groups: ansible
+        #append: yes
+   
+    #- name: Allow sudo for user created
+     # copy: 
+      #  content=%ansible  ALL=(ALL) NOPASSWD: ALL 
+      #  path: /etc/sudoers.d/
+       # mode: 0600
+
+    - name: Preventing users to login as root to become super user
+      shell: sed -i '/^root/s!/bin/bash$!/sbin/nologin/!' /etc/passwd
+
+    #- name: Enabling ssh-key only root access
+      #lineinfile:
+        #dest: /etc/ssh/sshd_config
+        #regexp: '^PermitRootLogin'
+        #line: 'PermitRootLogin without-password'
+      #notify: 
+      #  - restart_sshd
+      #  - restart_ssh
+
+  #handlers:
+  #  - name: restart_sshd
+  #    service:
+  #      name: sshd
+   #     state: restarted

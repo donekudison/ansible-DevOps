@@ -1,0 +1,106 @@
+---
+# The EPEL repository is required to install Python pip
+- name: Update the operation system
+  yum:
+    name: yum
+    update_cache: yes
+    state: latest
+
+- name: Download EPEL-repo rpm for CentOS 7.x
+  get_url:
+    dest: /tmp
+    url: http://repo.mysql.com/mysql-community-release-el7-7.noarch.rpm
+
+- name: Install MySQL Community Repo
+  yum:
+    name: /tmp/mysql-community-release-el7-7.noarch.rpm
+    state: present
+
+- name: Check to see if pip is already installed
+  command: "pip --version"
+  ignore_errors: true
+  register: pip_is_installed
+  changed_when: false
+
+- block:
+  - name: Download get-pip.py
+    get_url:
+      url: https://bootstrap.pypa.io/get-pip.py
+      dest: /tmp
+
+  - name: Install pip
+    command: "python /tmp/get-pip.py"
+
+  - name: delete get-pip.py
+    file:
+    state: absent
+    path: /tmp/get-pip.py
+  when: pip_is_installed.rc != 0
+
+- name: Ensure Python pip is at the latest version
+  yum:
+    name: python-pip
+    state: present
+
+- name: Ensure MySQL server is at the latest version
+  yum:
+    name: mysql-server
+    state: latest
+
+- name: Start the mysql services
+  service:
+    name: mysqld
+    state: started
+    enabled: yes
+
+- name: Ensure MySQL-Python is at the latest version
+  yum:
+    name: MySQL-python
+    state: latest
+
+- name: Install ConfigParser Python package
+  pip:
+    name: configparser
+    state: present
+
+- name: Ensure libselinux-python is at the latest version
+  yum:
+    name: libselinux-python
+    state: latest
+
+#- name: Set root user password for MYSQL
+ # mysql_user:
+   # name: root
+  #  password: "{{ mysql_root_password }}"
+   # check_implicit_admin: true
+
+- name: Copy and create the .my.cnf file
+  template:
+    src: "client.my.cnf.j2"
+    dest: "/root/.my.cnf" 
+    owner: root
+    group: root
+    mode: 0600
+
+- name: Enable firewalld
+  service:
+    name: firewalld 
+    state: started
+    enabled: yes
+
+- name: Set mysqld port 3306
+  firewalld:
+    zone: internal
+    port: 3306/tcp
+    permanent: true
+    state: enabled
+
+- name: Restart firewalld
+  service:
+    name: firewalld
+    state: restarted
+
+- name: Restart the mysqld services
+  service:
+    name: mysqld
+    state: restarted

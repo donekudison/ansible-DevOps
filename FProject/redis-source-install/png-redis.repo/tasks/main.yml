@@ -1,0 +1,90 @@
+---
+- name: Install redis deps
+  yum: name={{item}} state=present
+  with_items:
+  - make
+  - gcc
+  - wget
+  - tcl 
+  tags: redis
+
+- name: Download redis source
+  shell: wget -O - http://download.redis.io/releases/redis-{{redis.version}}.tar.gz | tar -xz -C "{{ redis_install_dir }}"  creates="{{ redis_install_dir }}/redis-{{redis.version}}"
+  tags: redis
+
+- name: Install redis
+  shell: make chdir={{ redis_install_dir }}/redis-{{redis.version}} creates={{ redis_install_dir }}/redis-{{redis.version}}/src/redis-server
+  tags: redis
+
+- name: Create a directory for redis
+  file:
+    path: "{{ redis_install_dir }}/redis"
+    state: directory
+    recurse: yes
+  tags: redis
+
+- name: Move compiled redis binaries
+  shell: cp -f {{item}} /usr/local/bin chdir={{ redis_install_dir }}/redis-{{redis.version}}/src
+  with_items:
+  - redis-cli
+  - redis-server
+  - redis-benchmark
+  tags: redis
+
+- name: Enable overcommit in sysctl
+  sysctl:
+    name: vm.overcommit_memory
+    value: 1
+    state: present
+    reload: yes
+    ignoreerrors: yes
+
+- name: Configure redis-server
+  template: src=redis.conf.j2 dest=/etc/redis.conf
+  notify:
+  - restart redis
+  tags: redis
+
+- name: Creating symbolic link
+  file:
+    src: "{{ redis_install_dir }}/redis-{{redis.version}}"
+    dest: "{{ redis_install_dir }}/redis"
+    owner: "{{ redis_user }}"
+    group: "{{ redis_group }}"
+    state: link
+    force: yes
+
+- name: Make redis a service
+  template: src=redis_init_script.j2 dest=/etc/init.d/redis mode=755
+  tags: redis
+
+- name: Run redis
+  shell: /etc/init.d/redis start creates=/var/run/redis.pid
+  tags: redis
+
+- name: Enable firewalld
+  service: 
+    name: firewalld
+    state: started
+    enabled: yes
+
+- name: Enable redis firewalld port
+  firewalld:
+    zone: internal
+    #service: redis
+    port: 6379/tcp
+    permanent: true
+    state: enabled
+    
+- name: Enable redis tcp-backlog port
+  firewalld:
+    zone: internal
+    #service: redis
+    port: 511/tcp
+    permanent: true
+    state: enabled
+    
+- name: Bounce firewalld
+  service:
+    name: firewalld
+    state: restarted

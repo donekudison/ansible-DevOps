@@ -1,0 +1,36 @@
+# Ansible role that check and disable proxy setting
+---
+- hosts: puma-qa
+  become_user: root
+  become_method: sudo
+  gather_facts: true
+
+  pre_tasks:
+    - name: Update yum cache.
+      yum: name=yum update_cache=yes state=latest
+      when: ansible_os_family == 'RedHat'
+
+  tasks:
+
+  - name: Check to see if proxy is set and running
+    environment:
+    shell: "env | grep proxy"
+    ignore_errors: true
+    register: http_proxy_is_configured
+    changed_when: false
+    
+  - name: Disabling http_proxy
+    environment:
+    shell: "unset http_proxy"
+    register: http_proxy_is_disabled
+    
+  - name: Disabling https_proxy
+    environment:
+    shell: "unset https_proxy"
+    register: https_proxy_is_disabled
+      
+  - name: Disabling no_proxy
+    environment:
+    shell: "unset no_proxy"
+    register: no_proxy_is_disabled
+   # no_proxy: localhost,127.0.0.0,127.0.1.1,127.0.1.1,local.home,http://attproxy.pngaming.com:8080/

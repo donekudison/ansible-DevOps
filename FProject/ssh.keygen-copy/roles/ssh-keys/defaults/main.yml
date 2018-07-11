@@ -1,0 +1,7 @@
+# default values
+---
+
+# will downloaded the latest Version from sshkey-Deploy first
+ssh_keys_update: False 
+ssh_keys_url: "sshkey-Deploy/master/ssh-key-deploy.sh"
+
