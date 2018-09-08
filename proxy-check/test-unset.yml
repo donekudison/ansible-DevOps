@@ -1,6 +1,6 @@
 # Ansible role that check and disable proxy setting
 ---
-- hosts: puma-qa
+- hosts: satcentos
   become_user: root
   become_method: sudo
   gather_facts: true
@@ -33,4 +33,4 @@
     environment:
     shell: "unset no_proxy"
     register: no_proxy_is_disabled
-   # no_proxy: localhost,127.0.0.0,127.0.1.1,127.0.1.1,local.home,http://attproxy.pngaming.com:8080/
+   # no_proxy: localhost,127.0.0.0,127.0.1.1,127.0.1.1,local.home
