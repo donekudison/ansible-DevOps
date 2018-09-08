@@ -1,5 +1,5 @@
 ---
-- hosts: puma-qa-test
+- hosts: satcentos
   become_user: root
   become_method: sudo
   gather_facts: true
