@@ -4,9 +4,9 @@ mysql_bind_address: "0.0.0.0"
 mysql_root_db_pass: School@2018
 
 mysql_db:
-     - name: png-dbmaster
+     - name: eku-dbmaster
        replicate: yes
-     - name: png-dbslave
+     - name: eku-dbslave
        replicate: no
 
 mysql_users:
