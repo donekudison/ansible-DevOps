@@ -2,9 +2,9 @@
 dependencies: []
 
 galaxy_info:
-  author: PNG
+  author: Eku
   description: webtatic for Linux
-  company: "PNG Cooperation"
+  company: "Ekutech Cooperation"
   license: "license (None)"
   min_ansible_version: 2.4
   platforms:
