@@ -1,6 +1,6 @@
 #An Ansible role that installs Apache activeMQ
 ---
-- hosts: puma-qa-test
+- hosts: satcentos
   become_user: root
   become_method: sudo
   gather_facts: true
@@ -11,4 +11,4 @@
       when: ansible_os_family == 'RedHat'
     
   roles:
-    - activemq.png.install
+    - activemq.eku.install
