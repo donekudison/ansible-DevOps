@@ -1,8 +1,0 @@
-#An Ansible role that installs Redis Basic
----
-- hosts: ansible
-  #become_user: root
- #bcome_method: sudo
-    
-  roles:
-    - role-redis.repo

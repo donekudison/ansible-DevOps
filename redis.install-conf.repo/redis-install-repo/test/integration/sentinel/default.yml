@@ -1,6 +1,0 @@
----
-- hosts: ansible
-  roles:
-    - role: redis-install-repo
-      redis_sentinel: true
-      redis_sentinel_logfile: "/var/log/redis_sentinel.log"

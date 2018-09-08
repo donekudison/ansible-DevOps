@@ -1,5 +1,0 @@
----
-- hosts: ansible
-  roles:
-    - role: redis-install-repo
-      redis_service_name: redis

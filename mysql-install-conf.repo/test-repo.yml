@@ -1,7 +1,0 @@
----
-- hosts: ansible
-  become_user: root
-  become_method: sudo
-
-  roles:
-       - role: mysql.install
