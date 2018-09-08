@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: " "
-  company: png
+  company: Ekutech
   license: license (BSD)
   min_ansible_version: 1.4 
   platforms:
